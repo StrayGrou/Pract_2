@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Учёт сотрудников</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .btn { display: inline-block; padding: 6px 12px; border-radius: 4px; text-decoration: none; cursor: pointer; border: none; font-size: 14px; }
+        .btn-add { background-color: #4CAF50; color: white; margin-bottom: 20px; }
+        .btn-edit { background-color: #FFA500; color: white; margin-right: 5px; }
+        .btn-delete { background-color: #f44336; color: white; }
+        .filter-form { margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; display: flex; gap: 15px; align-items: center; }
+        .filter-form input, .filter-form select { padding: 6px; font-size: 14px; }
+        .status-active { color: green; font-weight: bold; }
+        .status-inactive { color: red; }
+    </style>
+</head>
+<body>
+
+<h2>Учёт сотрудников</h2>
+
+<a th:href="@{/employees/add}" class="btn btn-add">Добавить нового сотрудника</a>
+
+<!-- Форма поиска и фильтрации -->
+<form th:action="@{/employees}" method="get" class="filter-form">
+    <div>
+        <label for="searchName">Поиск по ФИО: </label>
+        <input type="text" id="searchName" name="searchName" th:value="${searchName}" placeholder="Введите ФИО...">
+    </div>
+    <div>
+        <label for="filterActive">Статус: </label>
+        <select id="filterActive" name="filterActive">
+            <option value="all" th:selected="${filterActive == 'all'}">Все</option>
+            <option value="active" th:selected="${filterActive == 'active'}">Активные</option>
+            <option value="inactive" th:selected="${filterActive == 'inactive'}">Неактивные</option>
+        </select>
+    </div>
+    <button type="submit" class="btn" style="background-color: #2196F3; color: white;">Применить</button>
+    <a th:href="@{/employees}" class="btn" style="background-color: #bbb; color: black;">Сбросить</a>
+</form>
+
+<!-- Таблица сотрудников -->
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>ФИО</th>
+        <th>Email</th>
+        <th>Телефон</th>
+        <th>Должность</th>
+        <th>Зарплата</th>
+        <th>Статус</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="emp : ${employees}">
+        <td th:text="${emp.id}">1</td>
+        <td th:text="${emp.fullName}">Иванов Иван</td>
+        <td th:text="${emp.email}">ivan@example.com</td>
+        <td th:text="${emp.phone}">+79991112233</td>
+        <td th:text="${emp.position}">Разработчик</td>
+        <td th:text="${#numbers.formatDecimal(emp.salary, 1, 2)}">0.00</td>
+        <td>
+            <span th:if="${emp.active}" class="status-active">Активен</span>
+            <span th:if="${!emp.active}" class="status-inactive">Неактивен</span>
+        </td>
+        <td style="display: flex;">
+            <a th:href="@{/employees/edit/{id}(id=${emp.id})}" class="btn btn-edit">Изменить</a>
+
+            <form th:action="@{/employees/delete/{id}(id=${emp.id})}" method="post" onsubmit="return confirm('Вы уверены, что хотите удалить сотрудника?');">
+                <button type="submit" class="btn btn-delete">Удалить</button>
+            </form>
+        </td>
+    </tr>
+    <tr th:if="${#lists.isEmpty(employees)}">
+        <td colspan="8" style="text-align: center; color: #888;">Сотрудники не найдены</td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
